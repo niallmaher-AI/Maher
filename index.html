@@ -8,8 +8,8 @@
     :root {
       --bg: #ffffff;
       --bg-soft: #f4f7fb;
-      --primary: #4a90e2;
-      --primary-soft: #e3f0ff;
+      --primary: #77DD77;        /* Soft Mint */
+      --primary-soft: #EEFFEE;   /* Very Light Mint */
       --accent: #7ed321;
       --danger: #ff6b6b;
       --text-main: #1f2933;
@@ -403,7 +403,7 @@
       justify-content: center;
       gap: 4px;
       cursor: pointer;
-      text-align: center;
+      text-align: centre;
     }
 
     .home-tile-emoji {
@@ -467,9 +467,7 @@
         </select>
       </div>
 
-      <div id="user-balance" class="subtitle">
-        <!-- Filled by JS -->
-      </div>
+      <div id="user-balance" class="subtitle"></div>
 
       <div class="row" style="margin-top: 4px;">
         <button id="btn-prev-day" class="ghost small">◀ Yesterday</button>
@@ -550,8 +548,8 @@
         <button id="btn-toggle-admin" class="ghost small">Admin PIN</button>
       </div>
       <div class="subtitle" style="margin-top: 6px;">
-        <strong>Credits:</strong> Tom & Olivia use their minutes for each booking.  
-        Sleepover costs a big block of credit and needs parent approval.
+        <strong>Credits:</strong> 1 point = 1 minute of fun.  
+        Tom &amp; Olivia spend points when they book. Sleepovers cost a big block of points and need parent approval.
       </div>
     </div>
 
@@ -578,13 +576,13 @@
         <button id="btn-close-admin" class="ghost small">Close</button>
       </div>
       <div class="subtitle">
-        Admin can delete any booking, clear all bookings for a day, and manage Tom & Olivia's credit.
+        Admin can delete any booking, clear all bookings for a day, and manage Tom &amp; Olivia's credit (points).
       </div>
 
       <div style="height: 10px;"></div>
       <h3 style="font-size:0.95rem;margin-bottom:4px;">Account credits</h3>
       <div class="field">
-        <label>Tom's credit (minutes)</label>
+        <label>Tom's credit (points / minutes)</label>
         <div class="row">
           <div id="admin-tom-balance" class="subtitle">0 min</div>
           <button class="small secondary" id="btn-add-tom-10">+10</button>
@@ -593,7 +591,7 @@
         </div>
       </div>
       <div class="field">
-        <label>Olivia's credit (minutes)</label>
+        <label>Olivia's credit (points / minutes)</label>
         <div class="row">
           <div id="admin-olivia-balance" class="subtitle">0 min</div>
           <button class="small secondary" id="btn-add-olivia-10">+10</button>
@@ -602,7 +600,7 @@
         </div>
       </div>
       <div class="subtitle">
-        Suggestion: +10 min = small chore, +30 min = bigger job, +60 min = excellent behaviour.
+        60 points = 1 hour of bliss. Earn points by helping out or as a treat.
       </div>
 
       <div style="height: 12px;"></div>
@@ -706,12 +704,17 @@
         <button id="about-close" class="ghost small">✕</button>
       </div>
       <div class="subtitle">
-        This app is for the Maher family to book the Chillout Room fairly.
-        Tom and Olivia earn <strong>credit minutes</strong> for chores and good behaviour.
-        They can spend those minutes on gaming, reading, music, chilling — or save up for a sleepover.
+        Relax, play, and hang out in our super chill space! 😎  
+        Booking is a must – <strong>no booking, no entry</strong>.
       </div>
       <div class="subtitle" style="margin-top:8px;">
-        Parents are admins. They add credit, approve sleepovers, and can clear or cancel any booking.
+        <strong>Earn and Spend Points</strong><br>
+        • 1 point = 1 minute of fun<br>
+        • 60 points = 1 hour of bliss<br>
+        • Earn points by helping out or as a treat!
+      </div>
+      <div class="subtitle" style="margin-top:8px;">
+        Save up enough points and, with parent approval, you can even book a sleepover.
       </div>
       <div class="modal-actions">
         <button id="about-ok" class="primary">Got it</button>
@@ -726,9 +729,7 @@
         <h3 id="info-title">Info</h3>
         <button id="info-close" class="ghost small">✕</button>
       </div>
-      <div id="info-body" class="subtitle">
-        <!-- Filled by JS -->
-      </div>
+      <div id="info-body" class="subtitle"></div>
       <div class="modal-actions">
         <button id="info-ok" class="primary">OK</button>
       </div>
@@ -740,8 +741,6 @@
     const APP_PIN = "2468";      // General entry PIN for the family
     const ADMIN_PIN = "8642";    // Admin PIN for Olivia / parents
 
-    const ROOM_NAME = "Maher Family Chillout Room";
-
     const USERS = ["Tom", "Olivia", "Dad", "Mum", "Guest"];
     const ACCOUNT_USERS = ["Tom", "Olivia"]; // credit accounts
 
@@ -750,8 +749,8 @@
     const CLOSE_MINUTES = 22 * 60; // 22:00
     const SLOT_STEP = 30;          // minutes
 
-    // Credit logic
-    const SLEEPOVER_COST_MINUTES = 480; // 8 hours of credit for a sleepover
+    // Credit logic: 1 point = 1 minute
+    const SLEEPOVER_COST_MINUTES = 480; // 8 hours/points for a sleepover
 
     const STORAGE_KEY_BOOKINGS = "maher_chillout_bookings";
     const STORAGE_KEY_ACCOUNTS = "maher_chillout_accounts";
@@ -786,7 +785,7 @@
       try {
         const raw = localStorage.getItem(STORAGE_KEY_BOOKINGS);
         bookingsByDate = raw ? JSON.parse(raw) : {};
-      } catch (e) {
+      } catch {
         bookingsByDate = {};
       }
     }
@@ -825,10 +824,9 @@
       try {
         const raw = localStorage.getItem(STORAGE_KEY_ACCOUNTS);
         accounts = raw ? JSON.parse(raw) : {};
-      } catch (e) {
+      } catch {
         accounts = {};
       }
-      // Ensure Tom & Olivia exist
       ACCOUNT_USERS.forEach(u => {
         if (!accounts[u]) accounts[u] = { minutes: 0 };
       });
@@ -862,7 +860,7 @@
         return;
       }
       const m = getAccountMinutes(user);
-      el.textContent = `${user} has ${m} minutes of chillout credit.`;
+      el.textContent = `${user} has ${m} points (minutes) of chillout credit.`;
     }
 
     function updateAdminAccountUI() {
@@ -874,7 +872,6 @@
       if (oEl) oEl.textContent = `${olivia} min`;
     }
 
-    // Cancel + optional refund
     function cancelBooking(dateKey, bookingId, refundCredits) {
       const arr = getBookingsForDate(dateKey);
       const idx = arr.findIndex(b => b.id === bookingId);
@@ -892,7 +889,7 @@
     }
 
     function clearBookingsForDateWithRefund(dateKey) {
-      const arr = getBookingsForDate(dateKey).slice(); // copy
+      const arr = getBookingsForDate(dateKey).slice();
       arr.forEach(b => {
         if (ACCOUNT_USERS.includes(b.user) && b.costMinutes) {
           adjustBalance(b.user, b.costMinutes);
@@ -948,9 +945,11 @@
           if (bookingForSlot.needsApproval && !bookingForSlot.approved) {
             row.classList.remove("slot-booked");
             row.classList.add("slot-pending");
-            metaSpan.textContent = `${bookingForSlot.user} • ${bookingForSlot.activity} • Pending parent approval`;
+            metaSpan.textContent =
+              `${bookingForSlot.user} • ${bookingForSlot.activity} • Pending parent approval`;
           } else {
-            metaSpan.textContent = `${bookingForSlot.user} • ${bookingForSlot.activity}`;
+            metaSpan.textContent =
+              `${bookingForSlot.user} • ${bookingForSlot.activity}`;
           }
         } else {
           row.classList.add("slot-free");
@@ -1136,12 +1135,12 @@
 
       if (isSleepover) {
         statusEl.textContent =
-          `Sleepover booking. Uses ${cost} minutes from ${user}'s credit. ` +
-          `Current balance: ${balance} min. Parent approval required.`;
+          `Sleepover booking. Uses ${cost} points from ${user}'s credit. ` +
+          `Current balance: ${balance} points. Parent approval required.`;
       } else {
         statusEl.textContent =
-          `This booking will use ${cost} minutes from ${user}'s credit. ` +
-          `Current balance: ${balance} min.`;
+          `This booking will use ${cost} points from ${user}'s credit. ` +
+          `Current balance: ${balance} points.`;
       }
     }
 
@@ -1151,7 +1150,6 @@
       const userSelect = document.getElementById("booking-user");
       const mainUser = document.getElementById("user-select").value;
 
-      // Fill user dropdown
       userSelect.innerHTML = "";
       USERS.forEach(u => {
         const opt = document.createElement("option");
@@ -1161,7 +1159,6 @@
         userSelect.appendChild(opt);
       });
 
-      // Fill start times
       const startSelect = document.getElementById("booking-start");
       startSelect.innerHTML = "";
       for (let t = OPEN_MINUTES; t <= CLOSE_MINUTES - SLOT_STEP; t += SLOT_STEP) {
@@ -1175,13 +1172,11 @@
         startSelect.value = defaultStartTime;
       }
 
-      // Reset length
       bookingLengthMinutes = 30;
       document.querySelectorAll("#length-pills .pill-select").forEach(p => {
         p.classList.toggle("active", p.dataset.minutes === "30");
       });
 
-      // Reset fields
       document.getElementById("booking-notes").value = "";
 
       const activitySelect = document.getElementById("booking-activity");
@@ -1191,11 +1186,11 @@
         activitySelect.value = "Xbox / Gaming";
       }
 
-      document.getElementById("admin-overwrite-row").classList.toggle("hidden", !isAdmin);
+      document.getElementById("admin-overwrite-row")
+        .classList.toggle("hidden", !isAdmin);
       document.getElementById("admin-overwrite-checkbox").checked = false;
 
       updateBookingStatusText();
-
       backdrop.classList.remove("hidden");
     }
 
@@ -1272,8 +1267,7 @@
       loadAccounts();
 
       const dateInput = document.getElementById("date-input");
-      const todayKey = formatDateKey(currentDate);
-      dateInput.value = todayKey;
+      dateInput.value = formatDateKey(currentDate);
 
       renderSlots();
       updateBalanceDisplay();
@@ -1286,7 +1280,8 @@
         if (!document.getElementById("panel-my-bookings").classList.contains("hidden")) {
           renderMyBookingsPanel();
         }
-        if (isAdmin && !document.getElementById("panel-admin").classList.contains("hidden")) {
+        if (isAdmin &&
+            !document.getElementById("panel-admin").classList.contains("hidden")) {
           renderAdminPanel();
         }
       });
@@ -1298,7 +1293,8 @@
         if (!document.getElementById("panel-my-bookings").classList.contains("hidden")) {
           renderMyBookingsPanel();
         }
-        if (isAdmin && !document.getElementById("panel-admin").classList.contains("hidden")) {
+        if (isAdmin &&
+            !document.getElementById("panel-admin").classList.contains("hidden")) {
           renderAdminPanel();
         }
       });
@@ -1310,7 +1306,8 @@
         if (!document.getElementById("panel-my-bookings").classList.contains("hidden")) {
           renderMyBookingsPanel();
         }
-        if (isAdmin && !document.getElementById("panel-admin").classList.contains("hidden")) {
+        if (isAdmin &&
+            !document.getElementById("panel-admin").classList.contains("hidden")) {
           renderAdminPanel();
         }
       });
@@ -1323,16 +1320,15 @@
           if (!document.getElementById("panel-my-bookings").classList.contains("hidden")) {
             renderMyBookingsPanel();
           }
-          if (isAdmin && !document.getElementById("panel-admin").classList.contains("hidden")) {
+          if (isAdmin &&
+              !document.getElementById("panel-admin").classList.contains("hidden")) {
             renderAdminPanel();
           }
         }
       });
 
-      // User select -> update balance
-      document.getElementById("user-select").addEventListener("change", () => {
-        updateBalanceDisplay();
-      });
+      // User select
+      document.getElementById("user-select").addEventListener("change", updateBalanceDisplay);
 
       // Vibe buttons
       document.querySelectorAll(".vibe-btn").forEach(btn => {
@@ -1416,7 +1412,8 @@
       // Length pills
       document.querySelectorAll("#length-pills .pill-select").forEach(pill => {
         pill.addEventListener("click", () => {
-          document.querySelectorAll("#length-pills .pill-select").forEach(p => p.classList.remove("active"));
+          document.querySelectorAll("#length-pills .pill-select")
+            .forEach(p => p.classList.remove("active"));
           pill.classList.add("active");
           bookingLengthMinutes = Number(pill.dataset.minutes);
           updateBookingStatusText();
@@ -1446,7 +1443,8 @@
         const needsApproval = isSleepover;
         const approved = false;
 
-        const allowOverwrite = isAdmin && document.getElementById("admin-overwrite-checkbox").checked;
+        const allowOverwrite =
+          isAdmin && document.getElementById("admin-overwrite-checkbox").checked;
 
         if (!allowOverwrite && hasOverlap(dateKey, startMinutes, endMinutes)) {
           alert("This clashes with an existing booking. Choose another time or ask admin.");
@@ -1458,7 +1456,10 @@
         if (ACCOUNT_USERS.includes(user) && costMinutes > 0) {
           const balance = getAccountMinutes(user);
           if (balance < costMinutes) {
-            alert(`${user} does not have enough credit.\nRequired: ${costMinutes} min, Available: ${balance} min.`);
+            alert(
+              `${user} does not have enough credit.\n` +
+              `Required: ${costMinutes} points, Available: ${balance} points.`
+            );
             return;
           }
         }
@@ -1487,13 +1488,16 @@
         if (!document.getElementById("panel-my-bookings").classList.contains("hidden")) {
           renderMyBookingsPanel();
         }
-        if (isAdmin && !document.getElementById("panel-admin").classList.contains("hidden")) {
+        if (isAdmin &&
+            !document.getElementById("panel-admin").classList.contains("hidden")) {
           renderAdminPanel();
         }
       });
 
-      document.getElementById("booking-activity").addEventListener("change", updateBookingStatusText);
-      document.getElementById("booking-user").addEventListener("change", updateBookingStatusText);
+      document.getElementById("booking-activity")
+        .addEventListener("change", updateBookingStatusText);
+      document.getElementById("booking-user")
+        .addEventListener("change", updateBookingStatusText);
 
       // PIN gate
       document.getElementById("pin-submit").addEventListener("click", () => {
@@ -1551,30 +1555,26 @@
 
       document.getElementById("home-activities").addEventListener("click", () => {
         const body = `
-          <div><strong>Activities you can book:</strong></div>
+          <div><strong>Book your chill time:</strong></div>
           <ul>
-            <li>🎮 Xbox / Gaming</li>
-            <li>📚 Reading a book</li>
-            <li>🎧 Listening to music</li>
-            <li>😎 Just chilling</li>
-            <li>🌙 Sleepover (needs parent approval & lots of credit)</li>
+            <li>🎮 <strong>Xbox</strong>: Get gaming!</li>
+            <li>😴 <strong>Sleep</strong>: Catch some Z's.</li>
+            <li>🌙 <strong>Sleepover</strong>: Invite a friend (with parent approval and enough points).</li>
           </ul>
-          <div>Pick one of these when you make a booking.</div>
+          <div>You can also book reading, music, or just chilling.</div>
         `;
         openInfoModal("Activities", body);
       });
 
       document.getElementById("home-rules").addEventListener("click", () => {
         const body = `
-          <div><strong>Chillout Room Rules:</strong></div>
-          <ol>
-            <li>Use the booking app before going into the room.</li>
-            <li>Respect other people's time — no double bookings.</li>
-            <li>Keep the room tidy: put rubbish in the bin and reset the space.</li>
-            <li>Use inside voices after 9pm.</li>
-            <li>No food or drink that can spill on electronics.</li>
-            <li>Sleepovers must be approved by Mum or Dad (Admin).</li>
-          </ol>
+          <div><strong>Chill Room Rules</strong></div>
+          <ul>
+            <li>If you're too late to book on a date, don't get upset – just pick another date.</li>
+            <li>Be quiet in the chillout room, even if you're the only person there.</li>
+            <li>Parents must say they accept the terms of you using the chillout room.</li>
+            <li>Booking is a must – no booking, no entry.</li>
+          </ul>
         `;
         openInfoModal("Room Rules", body);
       });
@@ -1591,11 +1591,12 @@
       document.getElementById("home-credit").addEventListener("click", () => {
         const user = document.getElementById("user-select").value;
         if (!ACCOUNT_USERS.includes(user)) {
-          alert(`${user} has no credit limit. Only Tom and Olivia use credits.`);
+          alert(`${user} has no credit limit. Only Tom and Olivia use points.`);
           return;
         }
         const m = getAccountMinutes(user);
-        alert(`${user} currently has ${m} minutes of chillout credit.`);
+        const hours = (m / 60).toFixed(2);
+        alert(`${user} currently has ${m} points (${hours} hours) of chillout credit.`);
       });
     });
   </script>
