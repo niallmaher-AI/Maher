@@ -5,17 +5,25 @@
   <title>Maher Family Chillout Room</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    /* --- 1. DARK MODE & NEON VARIABLES --- */
     :root {
-      --bg: #ffffff;
-      --bg-soft: #f4f7fb;
-      --primary: #77DD77;        /* Soft Mint */
-      --primary-soft: #EEFFEE;   /* Very Light Mint */
-      --accent: #7ed321;
-      --danger: #ff6b6b;
-      --text-main: #1f2933;
-      --text-soft: #6b7b93;
-      --border: #dde3ed;
-      --shadow-soft: 0 4px 16px rgba(15, 35, 52, 0.08);
+      --bg: #121212;             /* Main Background (Very Dark) */
+      --bg-soft: #1E1E1E;        /* Card Background (Dark Gray) */
+      
+      --primary: #00E5FF;        /* Neon Cyan (Main Action/Free) */
+      --primary-soft: #F72585;   /* Neon Pink (Secondary/Booked) */
+      
+      --accent: #7209B7;         /* Deep Purple */
+      --danger: #FF3131;         /* Neon Red */
+      
+      --text-main: #FFFFFF;      /* White text */
+      --text-soft: #B0B0B0;      /* Light gray text */
+      
+      --border: #333333;         /* Dark borders */
+      
+      /* Neon Glow Shadow */
+      --shadow-soft: 0 4px 20px rgba(0, 229, 255, 0.1);
+      
       --radius-lg: 16px;
       --radius-md: 10px;
       --radius-pill: 999px;
@@ -30,7 +38,7 @@
     body {
       margin: 0;
       padding: 0;
-      background: var(--bg-soft);
+      background: var(--bg);
       color: var(--text-main);
       display: flex;
       justify-content: center;
@@ -43,12 +51,14 @@
       padding: 16px;
     }
 
+    /* Update Card for Dark Mode */
     .card {
-      background: var(--bg);
+      background: var(--bg-soft);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-soft);
       padding: 16px 18px;
       margin-bottom: 16px;
+      border: 1px solid #333; /* Slight border definition */
     }
 
     h1, h2, h3 {
@@ -59,17 +69,24 @@
       font-size: 1.4rem;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center; /* Center the logo */
       gap: 8px;
     }
-
-    h1 span.room-icon {
-      font-size: 1.6rem;
+    
+    /* Hero Image Style */
+    .hero-banner {
+        width: 100%;
+        border-radius: var(--radius-md);
+        display: block;
+        margin-bottom: 10px;
+        box-shadow: 0 0 15px var(--primary); /* Neon Glow around banner */
     }
 
     h2 {
       font-size: 1.1rem;
       margin-bottom: 8px;
+      color: var(--primary); /* Neon Cyan Headers */
+      text-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
     }
 
     .subtitle {
@@ -82,14 +99,16 @@
       padding: 4px 10px;
       border-radius: var(--radius-pill);
       font-size: 0.7rem;
-      background: var(--primary-soft);
+      background: #333;
       color: var(--primary);
+      border: 1px solid var(--primary);
       font-weight: 600;
     }
 
     .badge-admin {
-      background: #ffe9e9;
-      color: #d7263d;
+      background: #330000;
+      color: var(--danger);
+      border-color: var(--danger);
     }
 
     .row {
@@ -118,16 +137,23 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
+      transition: all 0.2s;
     }
 
     button.primary {
       background: var(--primary);
-      color: #fff;
+      color: #000; /* Black text on Neon Cyan for contrast */
+      box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+    }
+    
+    button.primary:active {
+        transform: scale(0.96);
     }
 
     button.secondary {
-      background: var(--bg-soft);
+      background: #333;
       color: var(--text-main);
+      border: 1px solid #444;
     }
 
     button.ghost {
@@ -145,12 +171,21 @@
       font-size: 0.75rem;
     }
 
+    /* Update Inputs for Dark Mode */
     input, select {
       width: 100%;
       padding: 8px 10px;
       border-radius: var(--radius-md);
       border: 1px solid var(--border);
       font-size: 0.9rem;
+      background: #2C2C2C; /* Dark Input Background */
+      color: var(--text-main); /* White text */
+      outline: none;
+    }
+    
+    input:focus, select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
     }
 
     label {
@@ -170,33 +205,34 @@
       margin-top: 8px;
     }
 
+    /* Slot Row styling for Dark Mode */
     .slot-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 7px 10px;
+      padding: 8px 12px;
       border-radius: var(--radius-md);
       border: 1px solid transparent;
-      margin-bottom: 6px;
-      background: #f9fbff;
+      margin-bottom: 8px;
+      background: #252525; /* Darker slot bg */
       font-size: 0.85rem;
     }
 
     .slot-free {
-      border-color: #d6e6ff;
-      color: var(--text-soft);
+      border: 1px solid var(--primary); /* Cyan Border */
+      color: var(--text-main);
     }
 
     .slot-booked {
-      background: var(--primary-soft);
-      border-color: var(--primary);
-      color: var(--primary);
+      background: rgba(247, 37, 133, 0.15); /* Pink tint */
+      border: 1px solid var(--primary-soft); /* Pink border */
+      color: var(--primary-soft);
     }
 
     .slot-pending {
-      background: #fff6e5;
-      border-color: #ffc857;
-      color: #b67b16;
+      background: rgba(255, 200, 0, 0.1);
+      border: 1px solid #FFC800;
+      color: #FFC800;
     }
 
     .slot-info {
@@ -231,21 +267,22 @@
       border: 1px solid var(--border);
       font-size: 0.78rem;
       cursor: pointer;
-      background: #fff;
+      background: #2C2C2C;
       color: var(--text-soft);
     }
 
     .pill-select.active {
       background: var(--primary);
-      color: #fff;
+      color: #000;
       border-color: var(--primary);
+      box-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
     }
 
-    /* PIN screen */
+    /* PIN screen - Dark Gradient */
     #pin-screen {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at top, #e3f0ff 0, #ffffff 45%, #f7fbff 100%);
+      background: radial-gradient(circle at top, #1a1a2e 0, #000000 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -256,11 +293,12 @@
     .pin-card {
       max-width: 360px;
       width: 100%;
-      background: #fff;
+      background: var(--bg-soft);
       padding: 18px 20px 20px;
       border-radius: 20px;
-      box-shadow: var(--shadow-soft);
+      box-shadow: 0 0 30px rgba(0, 229, 255, 0.15);
       text-align: center;
+      border: 1px solid #333;
     }
 
     .pin-input {
@@ -280,25 +318,27 @@
       margin-top: 4px;
     }
 
-    /* Modal */
+    /* Modal - Dark Mode */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(4, 12, 30, 0.35);
+      background: rgba(0, 0, 0, 0.8); /* Darker backdrop */
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 24px;
       z-index: 30;
+      backdrop-filter: blur(4px);
     }
 
     .modal {
       max-width: 420px;
       width: 100%;
-      background: #fff;
+      background: var(--bg-soft);
       border-radius: 18px;
       padding: 16px 18px 14px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+      box-shadow: 0 0 40px rgba(0,0,0, 0.8);
+      border: 1px solid var(--border);
     }
 
     .modal-header {
@@ -327,7 +367,7 @@
       padding: 8px 10px;
       margin-bottom: 6px;
       font-size: 0.8rem;
-      background: #fff;
+      background: #2C2C2C;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -363,15 +403,20 @@
     .vibe-btn {
       flex: 0 0 auto;
       border-radius: 999px;
-      padding: 8px 10px;
+      padding: 8px 12px;
       border: 1px solid var(--border);
-      background: #fff;
+      background: #2C2C2C;
+      color: white;
       font-size: 0.8rem;
       display: flex;
       align-items: center;
       gap: 6px;
       cursor: pointer;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    
+    .vibe-btn:hover {
+        border-color: var(--primary);
+        box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
     }
 
     .vibe-emoji {
@@ -383,7 +428,7 @@
       white-space: nowrap;
     }
 
-    /* Home icon grid */
+    /* Home icon grid - Dark Tiles */
     .home-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -393,17 +438,22 @@
 
     .home-tile {
       border-radius: 14px;
-      padding: 10px 6px;
-      background: #ffffff;
+      padding: 12px 6px;
+      background: #2C2C2C; /* Dark Tile */
       border: 1px solid var(--border);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 4px;
+      gap: 6px;
       cursor: pointer;
-      text-align: centre;
+      text-align: center;
+      transition: transform 0.1s;
+    }
+    
+    .home-tile:active {
+        transform: scale(0.98);
     }
 
     .home-tile-emoji {
@@ -413,38 +463,37 @@
     .home-tile-label {
       font-size: 0.78rem;
       font-weight: 600;
+      color: var(--text-main);
     }
   </style>
 </head>
 <body>
-  <!-- PIN GATE -->
   <div id="pin-screen">
     <div class="pin-card">
-      <h2>Maher Family Chillout Room</h2>
-      <div class="subtitle">Enter the secret family PIN to open the booking app.</div>
+      <h2 style="color: var(--primary); margin-bottom: 10px;">Maher Family<br>Chillout Room</h2>
+      <div class="subtitle">Enter the secret family PIN to unlock.</div>
       <div class="pin-input">
         <input id="pin-input" type="password" inputmode="numeric" placeholder="Enter PIN"
-               maxlength="6" />
+               maxlength="6" style="text-align:center; letter-spacing: 4px; font-size: 1.2rem;" />
       </div>
-      <button id="pin-submit" class="primary" style="width: 100%;">Unlock</button>
+      <button id="pin-submit" class="primary" style="width: 100%;">UNLOCK</button>
       <div id="pin-error" class="error-text hidden">Incorrect PIN. Try again.</div>
-      <div class="pin-hint">Olivia / parents can change this PIN in the code.</div>
     </div>
   </div>
 
-  <!-- MAIN APP -->
   <div id="app" class="app-shell hidden">
-    <!-- Header / date / user -->
-    <div class="card">
-      <div class="row-space">
-        <div>
-          <h1>
-            <span>Chillout Room</span>
+    <div class="card" style="position: relative; overflow: hidden;">
+        
+        <img src="YOUR_IMAGE_URL_HERE.png" alt="Maher Chillout Room" class="hero-banner" onerror="this.style.display='none'">
+        
+        <h1 style="margin-bottom: 10px;">
+            <span style="color:var(--primary);">Chillout Room</span>
             <span class="room-icon">🛋️</span>
-          </h1>
-          <div class="subtitle">
-            One room • No double bookings • 30–60 min slots
-          </div>
+        </h1>
+
+      <div class="row-space">
+        <div class="subtitle">
+           No double bookings • 30–60 min slots
         </div>
         <span id="admin-badge" class="badge badge-admin hidden">ADMIN</span>
       </div>
@@ -476,11 +525,23 @@
       </div>
     </div>
 
-    <!-- HOME ICON GRID -->
     <div class="card">
       <h2>Home</h2>
       <div class="subtitle">Tap an icon to jump straight to what you need.</div>
       <div class="home-grid">
+        <div class="home-tile" id="home-booking">
+          <div class="home-tile-emoji">📅</div>
+          <div class="home-tile-label" style="color: var(--primary);">BOOKING</div>
+        </div>
+         <div class="home-tile" id="home-credit">
+          <div class="home-tile-emoji">💰</div>
+          <div class="home-tile-label">CREDITS</div>
+        </div>
+        <div class="home-tile" id="home-cancel">
+          <div class="home-tile-emoji">❌</div>
+          <div class="home-tile-label">CANCEL</div>
+        </div>
+        
         <div class="home-tile" id="home-about">
           <div class="home-tile-emoji">🧩</div>
           <div class="home-tile-label">About</div>
@@ -493,22 +554,9 @@
           <div class="home-tile-emoji">📜</div>
           <div class="home-tile-label">Rules</div>
         </div>
-        <div class="home-tile" id="home-booking">
-          <div class="home-tile-emoji">📅</div>
-          <div class="home-tile-label">Booking</div>
-        </div>
-        <div class="home-tile" id="home-cancel">
-          <div class="home-tile-emoji">❌</div>
-          <div class="home-tile-label">Cancel</div>
-        </div>
-        <div class="home-tile" id="home-credit">
-          <div class="home-tile-emoji">💰</div>
-          <div class="home-tile-label">Check credit</div>
-        </div>
       </div>
     </div>
 
-    <!-- Vibe icons for kids -->
     <div class="card">
       <h2>Pick your vibe</h2>
       <div class="subtitle">Tap an icon to start a booking with that activity.</div>
@@ -536,7 +584,6 @@
       </div>
     </div>
 
-    <!-- Quick actions -->
     <div class="card">
       <h2>Actions</h2>
       <div class="row" style="margin-top: 6px;">
@@ -548,19 +595,17 @@
         <button id="btn-toggle-admin" class="ghost small">Admin PIN</button>
       </div>
       <div class="subtitle" style="margin-top: 6px;">
-        <strong>Credits:</strong> 1 point = 1 minute of fun.  
+        <strong>Credits:</strong> 1 point = 1 minute.  
         Tom &amp; Olivia spend points when they book. Sleepovers cost a big block of points and need parent approval.
       </div>
     </div>
 
-    <!-- Room schedule -->
     <div class="card">
       <h2>Today's schedule</h2>
       <div class="subtitle">Maher Family Chillout Room • 09:00–22:00</div>
       <div id="slots-list" class="slots-list"></div>
     </div>
 
-    <!-- My bookings panel -->
     <div id="panel-my-bookings" class="card hidden">
       <div class="row-space">
         <div class="panel-title">My bookings on this date</div>
@@ -569,7 +614,6 @@
       <div id="my-bookings-list" style="margin-top: 6px;"></div>
     </div>
 
-    <!-- Admin panel -->
     <div id="panel-admin" class="card hidden">
       <div class="row-space">
         <div class="panel-title">Admin controls</div>
@@ -612,7 +656,6 @@
     </div>
   </div>
 
-  <!-- Booking modal -->
   <div id="booking-modal-backdrop" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-header">
@@ -677,7 +720,6 @@
     </div>
   </div>
 
-  <!-- Admin PIN modal -->
   <div id="admin-pin-backdrop" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-header">
@@ -696,7 +738,6 @@
     </div>
   </div>
 
-  <!-- ABOUT modal -->
   <div id="about-backdrop" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-header">
@@ -722,7 +763,6 @@
     </div>
   </div>
 
-  <!-- RULES & ACTIVITIES modal -->
   <div id="info-backdrop" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-header">
