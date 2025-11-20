@@ -63,6 +63,10 @@
       gap: 8px;
     }
 
+    h1 span.room-icon {
+      font-size: 1.6rem;
+    }
+
     h2 {
       font-size: 1.1rem;
       margin-bottom: 8px;
@@ -345,6 +349,39 @@
       color: var(--text-soft);
       font-size: 0.8rem;
     }
+
+    /* Vibe icons row */
+    .vibe-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      margin-top: 6px;
+      padding-bottom: 4px;
+    }
+
+    .vibe-btn {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+
+    .vibe-emoji {
+      font-size: 1.3rem;
+    }
+
+    .vibe-label {
+      font-weight: 600;
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body>
@@ -370,7 +407,8 @@
       <div class="row-space">
         <div>
           <h1>
-            Chillout Room
+            <span>Chillout Room</span>
+            <span class="room-icon">🛋️</span>
           </h1>
           <div class="subtitle">
             One room • No double bookings • 30–60 min slots
@@ -405,6 +443,34 @@
         <button id="btn-prev-day" class="ghost small">◀ Yesterday</button>
         <button id="btn-today" class="secondary small">Today</button>
         <button id="btn-next-day" class="ghost small">Tomorrow ▶</button>
+      </div>
+    </div>
+
+    <!-- Vibe icons for kids -->
+    <div class="card">
+      <h2>Pick your vibe</h2>
+      <div class="subtitle">Tap an icon to start a booking with that activity.</div>
+      <div class="vibe-row">
+        <button class="vibe-btn" data-activity="Xbox / Gaming">
+          <span class="vibe-emoji">🎮</span>
+          <span class="vibe-label">Gaming</span>
+        </button>
+        <button class="vibe-btn" data-activity="Reading a book">
+          <span class="vibe-emoji">📚</span>
+          <span class="vibe-label">Reading</span>
+        </button>
+        <button class="vibe-btn" data-activity="Listening to music">
+          <span class="vibe-emoji">🎧</span>
+          <span class="vibe-label">Music</span>
+        </button>
+        <button class="vibe-btn" data-activity="Just chilling">
+          <span class="vibe-emoji">😎</span>
+          <span class="vibe-label">Chill</span>
+        </button>
+        <button class="vibe-btn" data-activity="Sleepover (needs parent approval)">
+          <span class="vibe-emoji">🌙</span>
+          <span class="vibe-label">Sleepover</span>
+        </button>
       </div>
     </div>
 
@@ -979,11 +1045,12 @@
     }
 
     // ========= MODALS =========
-    function openBookingModal(defaultStartTime = null) {
+    function openBookingModal(defaultStartTime = null, defaultActivity = null) {
       const backdrop = document.getElementById("booking-modal-backdrop");
       const userSelect = document.getElementById("booking-user");
       const mainUser = document.getElementById("user-select").value;
 
+      // Fill user dropdown
       userSelect.innerHTML = "";
       USERS.forEach(u => {
         const opt = document.createElement("option");
@@ -993,6 +1060,7 @@
         userSelect.appendChild(opt);
       });
 
+      // Fill start times
       const startSelect = document.getElementById("booking-start");
       startSelect.innerHTML = "";
       for (let t = OPEN_MINUTES; t <= CLOSE_MINUTES - SLOT_STEP; t += SLOT_STEP) {
@@ -1002,15 +1070,25 @@
         opt.textContent = timeStr;
         startSelect.appendChild(opt);
       }
-      if (defaultStartTime) startSelect.value = defaultStartTime;
+      if (defaultStartTime) {
+        startSelect.value = defaultStartTime;
+      }
 
+      // Reset length
       bookingLengthMinutes = 30;
       document.querySelectorAll("#length-pills .pill-select").forEach(p => {
         p.classList.toggle("active", p.dataset.minutes === "30");
       });
 
+      // Reset fields
       document.getElementById("booking-notes").value = "";
-      document.getElementById("booking-activity").value = "Xbox / Gaming";
+
+      const activitySelect = document.getElementById("booking-activity");
+      if (defaultActivity) {
+        activitySelect.value = defaultActivity;
+      } else {
+        activitySelect.value = "Xbox / Gaming";
+      }
 
       document.getElementById("admin-overwrite-row").classList.toggle("hidden", !isAdmin);
       document.getElementById("admin-overwrite-checkbox").checked = false;
@@ -1066,7 +1144,7 @@
         return;
       }
 
-      openBookingModal(chosenStart);
+      openBookingModal(chosenStart, null);
     }
 
     // ========= EVENT WIRING =========
@@ -1135,6 +1213,14 @@
       // User select -> update balance
       document.getElementById("user-select").addEventListener("change", () => {
         updateBalanceDisplay();
+      });
+
+      // Vibe buttons
+      document.querySelectorAll(".vibe-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const activity = btn.getAttribute("data-activity");
+          openBookingModal(null, activity);
+        });
       });
 
       // Quick actions
