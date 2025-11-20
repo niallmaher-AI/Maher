@@ -382,6 +382,38 @@
       font-weight: 600;
       white-space: nowrap;
     }
+
+    /* Home icon grid */
+    .home-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .home-tile {
+      border-radius: 14px;
+      padding: 10px 6px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .home-tile-emoji {
+      font-size: 1.6rem;
+    }
+
+    .home-tile-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -443,6 +475,38 @@
         <button id="btn-prev-day" class="ghost small">◀ Yesterday</button>
         <button id="btn-today" class="secondary small">Today</button>
         <button id="btn-next-day" class="ghost small">Tomorrow ▶</button>
+      </div>
+    </div>
+
+    <!-- HOME ICON GRID -->
+    <div class="card">
+      <h2>Home</h2>
+      <div class="subtitle">Tap an icon to jump straight to what you need.</div>
+      <div class="home-grid">
+        <div class="home-tile" id="home-about">
+          <div class="home-tile-emoji">🧩</div>
+          <div class="home-tile-label">About</div>
+        </div>
+        <div class="home-tile" id="home-activities">
+          <div class="home-tile-emoji">🎯</div>
+          <div class="home-tile-label">Activities</div>
+        </div>
+        <div class="home-tile" id="home-rules">
+          <div class="home-tile-emoji">📜</div>
+          <div class="home-tile-label">Rules</div>
+        </div>
+        <div class="home-tile" id="home-booking">
+          <div class="home-tile-emoji">📅</div>
+          <div class="home-tile-label">Booking</div>
+        </div>
+        <div class="home-tile" id="home-cancel">
+          <div class="home-tile-emoji">❌</div>
+          <div class="home-tile-label">Cancel</div>
+        </div>
+        <div class="home-tile" id="home-credit">
+          <div class="home-tile-emoji">💰</div>
+          <div class="home-tile-label">Check credit</div>
+        </div>
       </div>
     </div>
 
@@ -630,6 +694,43 @@
       <div class="modal-actions">
         <button id="admin-pin-cancel" class="ghost">Cancel</button>
         <button id="admin-pin-submit" class="primary">Unlock admin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABOUT modal -->
+  <div id="about-backdrop" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>About the Chillout Room</h3>
+        <button id="about-close" class="ghost small">✕</button>
+      </div>
+      <div class="subtitle">
+        This app is for the Maher family to book the Chillout Room fairly.
+        Tom and Olivia earn <strong>credit minutes</strong> for chores and good behaviour.
+        They can spend those minutes on gaming, reading, music, chilling — or save up for a sleepover.
+      </div>
+      <div class="subtitle" style="margin-top:8px;">
+        Parents are admins. They add credit, approve sleepovers, and can clear or cancel any booking.
+      </div>
+      <div class="modal-actions">
+        <button id="about-ok" class="primary">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RULES & ACTIVITIES modal -->
+  <div id="info-backdrop" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="info-title">Info</h3>
+        <button id="info-close" class="ghost small">✕</button>
+      </div>
+      <div id="info-body" class="subtitle">
+        <!-- Filled by JS -->
+      </div>
+      <div class="modal-actions">
+        <button id="info-ok" class="primary">OK</button>
       </div>
     </div>
   </div>
@@ -1112,6 +1213,24 @@
       document.getElementById("admin-pin-backdrop").classList.add("hidden");
     }
 
+    function openAboutModal() {
+      document.getElementById("about-backdrop").classList.remove("hidden");
+    }
+
+    function closeAboutModal() {
+      document.getElementById("about-backdrop").classList.add("hidden");
+    }
+
+    function openInfoModal(title, htmlBody) {
+      document.getElementById("info-title").textContent = title;
+      document.getElementById("info-body").innerHTML = htmlBody;
+      document.getElementById("info-backdrop").classList.remove("hidden");
+    }
+
+    function closeInfoModal() {
+      document.getElementById("info-backdrop").classList.add("hidden");
+    }
+
     // ========= QUICK BOOK =========
     function quickBookNextFreeSlot() {
       const dateKey = document.getElementById("date-input").value;
@@ -1418,6 +1537,66 @@
 
       document.getElementById("admin-pin-close").addEventListener("click", closeAdminPinModal);
       document.getElementById("admin-pin-cancel").addEventListener("click", closeAdminPinModal);
+
+      // About modal
+      document.getElementById("about-close").addEventListener("click", closeAboutModal);
+      document.getElementById("about-ok").addEventListener("click", closeAboutModal);
+
+      // Info modal
+      document.getElementById("info-close").addEventListener("click", closeInfoModal);
+      document.getElementById("info-ok").addEventListener("click", closeInfoModal);
+
+      // HOME ICON GRID actions
+      document.getElementById("home-about").addEventListener("click", openAboutModal);
+
+      document.getElementById("home-activities").addEventListener("click", () => {
+        const body = `
+          <div><strong>Activities you can book:</strong></div>
+          <ul>
+            <li>🎮 Xbox / Gaming</li>
+            <li>📚 Reading a book</li>
+            <li>🎧 Listening to music</li>
+            <li>😎 Just chilling</li>
+            <li>🌙 Sleepover (needs parent approval & lots of credit)</li>
+          </ul>
+          <div>Pick one of these when you make a booking.</div>
+        `;
+        openInfoModal("Activities", body);
+      });
+
+      document.getElementById("home-rules").addEventListener("click", () => {
+        const body = `
+          <div><strong>Chillout Room Rules:</strong></div>
+          <ol>
+            <li>Use the booking app before going into the room.</li>
+            <li>Respect other people's time — no double bookings.</li>
+            <li>Keep the room tidy: put rubbish in the bin and reset the space.</li>
+            <li>Use inside voices after 9pm.</li>
+            <li>No food or drink that can spill on electronics.</li>
+            <li>Sleepovers must be approved by Mum or Dad (Admin).</li>
+          </ol>
+        `;
+        openInfoModal("Room Rules", body);
+      });
+
+      document.getElementById("home-booking").addEventListener("click", () => {
+        openBookingModal();
+      });
+
+      document.getElementById("home-cancel").addEventListener("click", () => {
+        document.getElementById("panel-my-bookings").classList.remove("hidden");
+        renderMyBookingsPanel();
+      });
+
+      document.getElementById("home-credit").addEventListener("click", () => {
+        const user = document.getElementById("user-select").value;
+        if (!ACCOUNT_USERS.includes(user)) {
+          alert(`${user} has no credit limit. Only Tom and Olivia use credits.`);
+          return;
+        }
+        const m = getAccountMinutes(user);
+        alert(`${user} currently has ${m} minutes of chillout credit.`);
+      });
     });
   </script>
 </body>
