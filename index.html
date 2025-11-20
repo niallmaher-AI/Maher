@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>Maher Family Chillout Room</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Calm, bright, minimal design -->
   <style>
     :root {
       --bg: #ffffff;
@@ -312,7 +311,6 @@
       margin-top: 8px;
     }
 
-    /* Panels */
     .panel-title {
       font-size: 0.95rem;
       font-weight: 600;
@@ -399,6 +397,10 @@
         </select>
       </div>
 
+      <div id="user-balance" class="subtitle">
+        <!-- Filled by JS -->
+      </div>
+
       <div class="row" style="margin-top: 4px;">
         <button id="btn-prev-day" class="ghost small">◀ Yesterday</button>
         <button id="btn-today" class="secondary small">Today</button>
@@ -418,7 +420,8 @@
         <button id="btn-toggle-admin" class="ghost small">Admin PIN</button>
       </div>
       <div class="subtitle" style="margin-top: 6px;">
-        Parents approval needed for <strong>sleepover</strong> bookings.
+        <strong>Credits:</strong> Tom & Olivia use their minutes for each booking.  
+        Sleepover costs a big block of credit and needs parent approval.
       </div>
     </div>
 
@@ -445,11 +448,35 @@
         <button id="btn-close-admin" class="ghost small">Close</button>
       </div>
       <div class="subtitle">
-        Admin can delete any booking and clear all bookings for a day.
+        Admin can delete any booking, clear all bookings for a day, and manage Tom & Olivia's credit.
       </div>
 
-      <div style="height: 8px;"></div>
-      <button id="btn-clear-day" class="danger small">Clear all bookings for this date</button>
+      <div style="height: 10px;"></div>
+      <h3 style="font-size:0.95rem;margin-bottom:4px;">Account credits</h3>
+      <div class="field">
+        <label>Tom's credit (minutes)</label>
+        <div class="row">
+          <div id="admin-tom-balance" class="subtitle">0 min</div>
+          <button class="small secondary" id="btn-add-tom-10">+10</button>
+          <button class="small secondary" id="btn-add-tom-30">+30</button>
+          <button class="small secondary" id="btn-add-tom-60">+60</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Olivia's credit (minutes)</label>
+        <div class="row">
+          <div id="admin-olivia-balance" class="subtitle">0 min</div>
+          <button class="small secondary" id="btn-add-olivia-10">+10</button>
+          <button class="small secondary" id="btn-add-olivia-30">+30</button>
+          <button class="small secondary" id="btn-add-olivia-60">+60</button>
+        </div>
+      </div>
+      <div class="subtitle">
+        Suggestion: +10 min = small chore, +30 min = bigger job, +60 min = excellent behaviour.
+      </div>
+
+      <div style="height: 12px;"></div>
+      <button id="btn-clear-day" class="danger small">Clear all bookings for this date (refunds credits)</button>
 
       <div style="height: 10px;"></div>
       <div class="panel-title">All bookings for this date</div>
@@ -501,9 +528,9 @@
         </div>
 
         <div class="field">
-          <label>Status</label>
+          <label>Credit impact</label>
           <div id="booking-status-text" class="subtitle">
-            Normal booking.
+            Normal booking. No credits deducted.
           </div>
         </div>
 
@@ -543,28 +570,30 @@
 
   <script>
     // ========= CONFIG =========
-    // Change these PINs if you want
     const APP_PIN = "2468";      // General entry PIN for the family
     const ADMIN_PIN = "8642";    // Admin PIN for Olivia / parents
 
     const ROOM_NAME = "Maher Family Chillout Room";
 
     const USERS = ["Tom", "Olivia", "Dad", "Mum", "Guest"];
+    const ACCOUNT_USERS = ["Tom", "Olivia"]; // credit accounts
 
-    // Opening hours in minutes from midnight
+    // Opening hours
     const OPEN_MINUTES = 9 * 60;   // 09:00
     const CLOSE_MINUTES = 22 * 60; // 22:00
-    const SLOT_STEP = 30;          // 30 minutes
+    const SLOT_STEP = 30;          // minutes
 
-    // Storage key
-    const STORAGE_KEY = "maher_chillout_bookings";
+    // Credit logic
+    const SLEEPOVER_COST_MINUTES = 480; // 8 hours of credit for a sleepover
+
+    const STORAGE_KEY_BOOKINGS = "maher_chillout_bookings";
+    const STORAGE_KEY_ACCOUNTS = "maher_chillout_accounts";
 
     // ========= STATE =========
     let bookingsByDate = {};
+    let accounts = {};
     let currentDate = new Date();
     let isAdmin = false;
-
-    // Modal state
     let bookingLengthMinutes = 30;
 
     // ========= HELPERS =========
@@ -588,7 +617,7 @@
 
     function loadBookings() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(STORAGE_KEY_BOOKINGS);
         bookingsByDate = raw ? JSON.parse(raw) : {};
       } catch (e) {
         bookingsByDate = {};
@@ -596,7 +625,7 @@
     }
 
     function saveBookings() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(bookingsByDate));
+      localStorage.setItem(STORAGE_KEY_BOOKINGS, JSON.stringify(bookingsByDate));
     }
 
     function getBookingsForDate(dateKey) {
@@ -610,22 +639,10 @@
       saveBookings();
     }
 
-    function removeBooking(dateKey, id) {
-      const arr = getBookingsForDate(dateKey);
-      bookingsByDate[dateKey] = arr.filter(b => b.id !== id);
-      saveBookings();
-    }
-
-    function clearBookingsForDate(dateKey) {
-      bookingsByDate[dateKey] = [];
-      saveBookings();
-    }
-
     function generateId() {
       return "b_" + Math.random().toString(36).slice(2, 10);
     }
 
-    // Check overlap (simple)
     function hasOverlap(dateKey, startMinutes, endMinutes, excludeId = null) {
       const existing = getBookingsForDate(dateKey);
       return existing.some(b => {
@@ -634,6 +651,90 @@
         const bEnd = parseTimeToMinutes(b.end);
         return startMinutes < bEnd && endMinutes > bStart;
       });
+    }
+
+    // ========= ACCOUNT / CREDIT HELPERS =========
+    function loadAccounts() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY_ACCOUNTS);
+        accounts = raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        accounts = {};
+      }
+      // Ensure Tom & Olivia exist
+      ACCOUNT_USERS.forEach(u => {
+        if (!accounts[u]) accounts[u] = { minutes: 0 };
+      });
+    }
+
+    function saveAccounts() {
+      localStorage.setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
+    }
+
+    function getAccountMinutes(user) {
+      if (!accounts[user]) return 0;
+      return accounts[user].minutes || 0;
+    }
+
+    function setAccountMinutes(user, minutes) {
+      if (!accounts[user]) accounts[user] = { minutes: 0 };
+      accounts[user].minutes = Math.max(0, Math.round(minutes));
+      saveAccounts();
+    }
+
+    function adjustBalance(user, deltaMinutes) {
+      const current = getAccountMinutes(user);
+      setAccountMinutes(user, current + deltaMinutes);
+    }
+
+    function updateBalanceDisplay() {
+      const user = document.getElementById("user-select").value;
+      const el = document.getElementById("user-balance");
+      if (!ACCOUNT_USERS.includes(user)) {
+        el.textContent = `${user} has no credit limit.`;
+        return;
+      }
+      const m = getAccountMinutes(user);
+      el.textContent = `${user} has ${m} minutes of chillout credit.`;
+    }
+
+    function updateAdminAccountUI() {
+      const tom = getAccountMinutes("Tom");
+      const olivia = getAccountMinutes("Olivia");
+      const tEl = document.getElementById("admin-tom-balance");
+      const oEl = document.getElementById("admin-olivia-balance");
+      if (tEl) tEl.textContent = `${tom} min`;
+      if (oEl) oEl.textContent = `${olivia} min`;
+    }
+
+    // Cancel + optional refund
+    function cancelBooking(dateKey, bookingId, refundCredits) {
+      const arr = getBookingsForDate(dateKey);
+      const idx = arr.findIndex(b => b.id === bookingId);
+      if (idx === -1) return;
+      const booking = arr[idx];
+
+      if (refundCredits && ACCOUNT_USERS.includes(booking.user) && booking.costMinutes) {
+        adjustBalance(booking.user, booking.costMinutes);
+      }
+
+      arr.splice(idx, 1);
+      saveBookings();
+      updateBalanceDisplay();
+      updateAdminAccountUI();
+    }
+
+    function clearBookingsForDateWithRefund(dateKey) {
+      const arr = getBookingsForDate(dateKey).slice(); // copy
+      arr.forEach(b => {
+        if (ACCOUNT_USERS.includes(b.user) && b.costMinutes) {
+          adjustBalance(b.user, b.costMinutes);
+        }
+      });
+      bookingsByDate[dateKey] = [];
+      saveBookings();
+      updateBalanceDisplay();
+      updateAdminAccountUI();
     }
 
     // ========= RENDERING =========
@@ -739,7 +840,8 @@
           if (b.needsApproval && !b.approved) status = "Pending parent approval";
           if (b.needsApproval && b.approved) status = "Approved sleepover";
           const notesPart = b.notes ? ` • Notes: ${b.notes}` : "";
-          meta.textContent = `${status}${notesPart}`;
+          const costPart = b.costMinutes ? ` • Cost: ${b.costMinutes} min` : "";
+          meta.textContent = `${status}${notesPart}${costPart}`;
           main.appendChild(meta);
 
           chip.appendChild(main);
@@ -748,8 +850,8 @@
           delBtn.classList.add("ghost", "small");
           delBtn.textContent = "Cancel";
           delBtn.addEventListener("click", () => {
-            if (confirm("Cancel this booking?")) {
-              removeBooking(dateKey, b.id);
+            if (confirm("Cancel this booking? Credits will be refunded.")) {
+              cancelBooking(dateKey, b.id, true);
               renderSlots();
               renderMyBookingsPanel();
               if (isAdmin) renderAdminPanel();
@@ -765,6 +867,8 @@
       const dateKey = document.getElementById("date-input").value;
       const container = document.getElementById("admin-bookings-list");
       container.innerHTML = "";
+
+      updateAdminAccountUI();
 
       const bookings = getBookingsForDate(dateKey);
 
@@ -795,7 +899,8 @@
           if (b.needsApproval && !b.approved) status = "Pending parent approval";
           if (b.needsApproval && b.approved) status = "Approved sleepover";
           const notesPart = b.notes ? ` • Notes: ${b.notes}` : "";
-          meta.textContent = `${status}${notesPart}`;
+          const costPart = b.costMinutes ? ` • Cost: ${b.costMinutes} min` : "";
+          meta.textContent = `${status}${notesPart}${costPart}`;
           main.appendChild(meta);
 
           chip.appendChild(main);
@@ -805,10 +910,10 @@
 
           const delBtn = document.createElement("button");
           delBtn.classList.add("danger", "small");
-          delBtn.textContent = "Delete";
+          delBtn.textContent = "Delete + refund";
           delBtn.addEventListener("click", () => {
-            if (confirm("Delete this booking?")) {
-              removeBooking(dateKey, b.id);
+            if (confirm("Delete this booking and refund credits?")) {
+              cancelBooking(dateKey, b.id, true);
               renderSlots();
               renderAdminPanel();
             }
@@ -833,13 +938,52 @@
         });
     }
 
+    // ========= BOOKING COST / STATUS TEXT =========
+    function computeBookingCostMinutes() {
+      const user = document.getElementById("booking-user").value;
+      const activity = document.getElementById("booking-activity").value;
+      if (!ACCOUNT_USERS.includes(user)) return 0;
+      const isSleepover = activity.startsWith("Sleepover");
+      if (isSleepover) return SLEEPOVER_COST_MINUTES;
+      return bookingLengthMinutes;
+    }
+
+    function updateBookingStatusText() {
+      const statusEl = document.getElementById("booking-status-text");
+      const user = document.getElementById("booking-user").value;
+      const activity = document.getElementById("booking-activity").value;
+      const isSleepover = activity.startsWith("Sleepover");
+      const cost = computeBookingCostMinutes();
+
+      if (!ACCOUNT_USERS.includes(user)) {
+        if (isSleepover) {
+          statusEl.textContent =
+            "Sleepover booking. No credits deducted for this user, but parent approval is still required.";
+        } else {
+          statusEl.textContent = "Normal booking. No credits deducted for this user.";
+        }
+        return;
+      }
+
+      const balance = getAccountMinutes(user);
+
+      if (isSleepover) {
+        statusEl.textContent =
+          `Sleepover booking. Uses ${cost} minutes from ${user}'s credit. ` +
+          `Current balance: ${balance} min. Parent approval required.`;
+      } else {
+        statusEl.textContent =
+          `This booking will use ${cost} minutes from ${user}'s credit. ` +
+          `Current balance: ${balance} min.`;
+      }
+    }
+
     // ========= MODALS =========
     function openBookingModal(defaultStartTime = null) {
       const backdrop = document.getElementById("booking-modal-backdrop");
       const userSelect = document.getElementById("booking-user");
       const mainUser = document.getElementById("user-select").value;
 
-      // Fill user dropdown
       userSelect.innerHTML = "";
       USERS.forEach(u => {
         const opt = document.createElement("option");
@@ -849,7 +993,6 @@
         userSelect.appendChild(opt);
       });
 
-      // Fill start times
       const startSelect = document.getElementById("booking-start");
       startSelect.innerHTML = "";
       for (let t = OPEN_MINUTES; t <= CLOSE_MINUTES - SLOT_STEP; t += SLOT_STEP) {
@@ -859,23 +1002,20 @@
         opt.textContent = timeStr;
         startSelect.appendChild(opt);
       }
-      if (defaultStartTime) {
-        startSelect.value = defaultStartTime;
-      }
+      if (defaultStartTime) startSelect.value = defaultStartTime;
 
-      // Reset length
       bookingLengthMinutes = 30;
       document.querySelectorAll("#length-pills .pill-select").forEach(p => {
         p.classList.toggle("active", p.dataset.minutes === "30");
       });
 
-      // Reset fields
       document.getElementById("booking-notes").value = "";
       document.getElementById("booking-activity").value = "Xbox / Gaming";
-      document.getElementById("booking-status-text").textContent = "Normal booking.";
 
       document.getElementById("admin-overwrite-row").classList.toggle("hidden", !isAdmin);
       document.getElementById("admin-overwrite-checkbox").checked = false;
+
+      updateBookingStatusText();
 
       backdrop.classList.remove("hidden");
     }
@@ -931,16 +1071,15 @@
 
     // ========= EVENT WIRING =========
     document.addEventListener("DOMContentLoaded", () => {
-      // Load bookings
       loadBookings();
+      loadAccounts();
 
-      // Set date input to today
       const dateInput = document.getElementById("date-input");
       const todayKey = formatDateKey(currentDate);
       dateInput.value = todayKey;
 
-      // Initial render
       renderSlots();
+      updateBalanceDisplay();
 
       // Date navigation
       document.getElementById("btn-prev-day").addEventListener("click", () => {
@@ -993,6 +1132,11 @@
         }
       });
 
+      // User select -> update balance
+      document.getElementById("user-select").addEventListener("change", () => {
+        updateBalanceDisplay();
+      });
+
       // Quick actions
       document.getElementById("btn-quick-book").addEventListener("click", quickBookNextFreeSlot);
       document.getElementById("btn-new-booking").addEventListener("click", () => openBookingModal());
@@ -1024,11 +1168,44 @@
 
       document.getElementById("btn-clear-day").addEventListener("click", () => {
         const dateKey = document.getElementById("date-input").value;
-        if (confirm("Clear all bookings for this date?")) {
-          clearBookingsForDate(dateKey);
+        if (confirm("Clear all bookings for this date and refund all credits?")) {
+          clearBookingsForDateWithRefund(dateKey);
           renderSlots();
           renderAdminPanel();
         }
+      });
+
+      // Admin credit buttons
+      document.getElementById("btn-add-tom-10").addEventListener("click", () => {
+        adjustBalance("Tom", 10);
+        updateBalanceDisplay();
+        updateAdminAccountUI();
+      });
+      document.getElementById("btn-add-tom-30").addEventListener("click", () => {
+        adjustBalance("Tom", 30);
+        updateBalanceDisplay();
+        updateAdminAccountUI();
+      });
+      document.getElementById("btn-add-tom-60").addEventListener("click", () => {
+        adjustBalance("Tom", 60);
+        updateBalanceDisplay();
+        updateAdminAccountUI();
+      });
+
+      document.getElementById("btn-add-olivia-10").addEventListener("click", () => {
+        adjustBalance("Olivia", 10);
+        updateBalanceDisplay();
+        updateAdminAccountUI();
+      });
+      document.getElementById("btn-add-olivia-30").addEventListener("click", () => {
+        adjustBalance("Olivia", 30);
+        updateBalanceDisplay();
+        updateAdminAccountUI();
+      });
+      document.getElementById("btn-add-olivia-60").addEventListener("click", () => {
+        adjustBalance("Olivia", 60);
+        updateBalanceDisplay();
+        updateAdminAccountUI();
       });
 
       // Length pills
@@ -1037,6 +1214,7 @@
           document.querySelectorAll("#length-pills .pill-select").forEach(p => p.classList.remove("active"));
           pill.classList.add("active");
           bookingLengthMinutes = Number(pill.dataset.minutes);
+          updateBookingStatusText();
         });
       });
 
@@ -1070,6 +1248,16 @@
           return;
         }
 
+        const costMinutes = computeBookingCostMinutes();
+
+        if (ACCOUNT_USERS.includes(user) && costMinutes > 0) {
+          const balance = getAccountMinutes(user);
+          if (balance < costMinutes) {
+            alert(`${user} does not have enough credit.\nRequired: ${costMinutes} min, Available: ${balance} min.`);
+            return;
+          }
+        }
+
         const booking = {
           id: generateId(),
           user,
@@ -1078,12 +1266,19 @@
           end: minutesToTimeStr(endMinutes),
           notes,
           needsApproval,
-          approved
+          approved,
+          costMinutes
         };
 
         addBooking(dateKey, booking);
+
+        if (ACCOUNT_USERS.includes(user) && costMinutes > 0) {
+          adjustBalance(user, -costMinutes);
+        }
+
         closeBookingModal();
         renderSlots();
+        updateBalanceDisplay();
         if (!document.getElementById("panel-my-bookings").classList.contains("hidden")) {
           renderMyBookingsPanel();
         }
@@ -1092,16 +1287,8 @@
         }
       });
 
-      // Update status text on activity change
-      document.getElementById("booking-activity").addEventListener("change", e => {
-        const val = e.target.value;
-        const statusEl = document.getElementById("booking-status-text");
-        if (val.startsWith("Sleepover")) {
-          statusEl.textContent = "Sleepover booking. Parent approval required (admin can approve).";
-        } else {
-          statusEl.textContent = "Normal booking.";
-        }
-      });
+      document.getElementById("booking-activity").addEventListener("change", updateBookingStatusText);
+      document.getElementById("booking-user").addEventListener("change", updateBookingStatusText);
 
       // PIN gate
       document.getElementById("pin-submit").addEventListener("click", () => {
