@@ -489,10 +489,11 @@
   </style>
 </head>
 <body>
+  <!-- PIN SCREEN -->
   <div id="pin-screen">
     <div class="pin-card">
       <img 
-        src="banner.png"
+        src="IMG_8378.jpeg"
         alt="Maher Family Chillout Room"
         class="hero-banner"
       />
@@ -512,9 +513,10 @@
     </div>
   </div>
 
+  <!-- MAIN APP -->
   <div id="app" class="app-shell hidden">
     <div class="card" style="position: relative; overflow: hidden;">
-      <img src="banner.png"
+      <img src="update.jpeg"
            alt="Maher Chillout Room"
            class="hero-banner"
            onerror="this.style.display='none'">
@@ -710,6 +712,7 @@
     </div>
   </div>
 
+  <!-- BOOKING MODAL -->
   <div id="booking-modal-backdrop" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-header">
@@ -774,6 +777,7 @@
     </div>
   </div>
 
+  <!-- ADMIN PIN MODAL -->
   <div id="admin-pin-backdrop" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-header">
@@ -792,6 +796,7 @@
     </div>
   </div>
 
+  <!-- ABOUT MODAL -->
   <div id="about-backdrop" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-header">
@@ -817,6 +822,7 @@
     </div>
   </div>
 
+  <!-- INFO MODAL -->
   <div id="info-backdrop" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-header">
@@ -835,7 +841,7 @@
     const APP_PIN = "2468";      // General entry PIN for the family
     const ADMIN_PIN = "8642";    // Admin PIN for parents
 
-    // NEW: individual user PINs
+    // Individual user PINs
     const USER_PINS = {
       Tom:    "1111",
       Olivia: "2222",
@@ -865,9 +871,7 @@
     let currentDate = new Date();
     let isAdmin = false;
     let bookingLengthMinutes = 30;
-    
-    // NEW: track currently verified user selection
-    let currentUserSelection = "Tom"; 
+    let currentUserSelection = "Tom";  // currently active/verified user
 
     // ========= HELPERS =========
     function formatDateKey(date) {
@@ -928,6 +932,7 @@
 
     // ========= ACCOUNT / CREDIT HELPERS =========
     function resetAccountsToDefaults() {
+      // Starting balances – will only be applied when version changes
       accounts = {
         Tom:    { minutes: 500 },
         Olivia: { minutes: 5900 },
@@ -951,7 +956,7 @@
         // First run of this version – set starting balances
         resetAccountsToDefaults();
       } else {
-        // Ensure all users exist
+        // Ensure all users exist but keep whatever minutes they already have
         ACCOUNT_USERS.forEach(u => {
           if (!accounts[u]) accounts[u] = { minutes: 0 };
         });
@@ -1398,11 +1403,37 @@
       dateInput.value = formatDateKey(currentDate);
 
       renderSlots();
-      updateBalanceDisplay();
-      
-      // Initialize current user selection variable
+
+      // User select with per-user PIN protection
       const userSelectEl = document.getElementById("user-select");
       currentUserSelection = userSelectEl.value;
+      updateBalanceDisplay();
+
+      userSelectEl.addEventListener("change", () => {
+        const requested = userSelectEl.value;
+
+        // Guest or anyone without a configured PIN: no challenge
+        if (!USER_PINS[requested]) {
+          currentUserSelection = requested;
+          updateBalanceDisplay();
+          return;
+        }
+
+        const entered = prompt(`Enter PIN for ${requested}:`);
+        if (entered === null) {
+          // Cancelled – revert to previous user
+          userSelectEl.value = currentUserSelection;
+          return;
+        }
+
+        if (entered === USER_PINS[requested]) {
+          currentUserSelection = requested;
+          updateBalanceDisplay();
+        } else {
+          alert("Incorrect PIN for " + requested);
+          userSelectEl.value = currentUserSelection;
+        }
+      });
 
       // Date navigation
       document.getElementById("btn-prev-day").addEventListener("click", () => {
@@ -1458,34 +1489,6 @@
           }
         }
       });
-
-      // ============ USER SELECT WITH PIN CHECK ============
-      userSelectEl.addEventListener("change", () => {
-        const requested = userSelectEl.value;
-
-        // Guest or anyone without a configured PIN: no challenge
-        if (!USER_PINS[requested]) {
-          currentUserSelection = requested;
-          updateBalanceDisplay();
-          return;
-        }
-
-        const entered = prompt(`Enter PIN for ${requested}:`);
-        if (entered === null) {
-          // Cancelled – revert to previous user
-          userSelectEl.value = currentUserSelection;
-          return;
-        }
-
-        if (entered === USER_PINS[requested]) {
-          currentUserSelection = requested;
-          updateBalanceDisplay();
-        } else {
-          alert("Incorrect PIN for " + requested);
-          userSelectEl.value = currentUserSelection;
-        }
-      });
-      // ====================================================
 
       // Vibe buttons
       document.querySelectorAll(".vibe-btn").forEach(btn => {
@@ -1688,7 +1691,7 @@
       document.getElementById("booking-user")
         .addEventListener("change", updateBookingStatusText);
 
-      // PIN gate
+      // PIN gate (universal entry PIN)
       document.getElementById("pin-submit").addEventListener("click", () => {
         const val = document.getElementById("pin-input").value;
         const err = document.getElementById("pin-error");
