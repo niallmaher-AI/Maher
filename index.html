@@ -51,14 +51,13 @@
       padding: 16px;
     }
 
-    /* Update Card for Dark Mode */
     .card {
       background: var(--bg-soft);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-soft);
       padding: 16px 18px;
       margin-bottom: 16px;
-      border: 1px solid #333; /* Slight border definition */
+      border: 1px solid #333;
     }
 
     h1, h2, h3 {
@@ -69,23 +68,14 @@
       font-size: 1.4rem;
       display: flex;
       align-items: center;
-      justify-content: center; /* Center the logo */
+      justify-content: center;
       gap: 8px;
-    }
-    
-    /* Hero Image Style */
-    .hero-banner {
-        width: 100%;
-        border-radius: var(--radius-md);
-        display: block;
-        margin-bottom: 10px;
-        box-shadow: 0 0 15px var(--primary); /* Neon Glow around banner */
     }
 
     h2 {
       font-size: 1.1rem;
       margin-bottom: 8px;
-      color: var(--primary); /* Neon Cyan Headers */
+      color: var(--primary);
       text-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
     }
 
@@ -142,12 +132,12 @@
 
     button.primary {
       background: var(--primary);
-      color: #000; /* Black text on Neon Cyan for contrast */
+      color: #000;
       box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
     }
     
     button.primary:active {
-        transform: scale(0.96);
+      transform: scale(0.96);
     }
 
     button.secondary {
@@ -171,21 +161,20 @@
       font-size: 0.75rem;
     }
 
-    /* Update Inputs for Dark Mode */
     input, select {
       width: 100%;
       padding: 8px 10px;
       border-radius: var(--radius-md);
       border: 1px solid var(--border);
       font-size: 0.9rem;
-      background: #2C2C2C; /* Dark Input Background */
-      color: var(--text-main); /* White text */
+      background: #2C2C2C;
+      color: var(--text-main);
       outline: none;
     }
     
     input:focus, select:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
+      border-color: var(--primary);
+      box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
     }
 
     label {
@@ -205,7 +194,6 @@
       margin-top: 8px;
     }
 
-    /* Slot Row styling for Dark Mode */
     .slot-row {
       display: flex;
       align-items: center;
@@ -214,18 +202,18 @@
       border-radius: var(--radius-md);
       border: 1px solid transparent;
       margin-bottom: 8px;
-      background: #252525; /* Darker slot bg */
+      background: #252525;
       font-size: 0.85rem;
     }
 
     .slot-free {
-      border: 1px solid var(--primary); /* Cyan Border */
+      border: 1px solid var(--primary);
       color: var(--text-main);
     }
 
     .slot-booked {
-      background: rgba(247, 37, 133, 0.15); /* Pink tint */
-      border: 1px solid var(--primary-soft); /* Pink border */
+      background: rgba(247, 37, 133, 0.15);
+      border: 1px solid var(--primary-soft);
       color: var(--primary-soft);
     }
 
@@ -318,11 +306,44 @@
       margin-top: 4px;
     }
 
+    /* Hero Image Style – glow + fade-in + mobile friendly */
+    .hero-banner {
+      display: block;
+      width: 100%;
+      max-width: 320px;
+      margin: 0 auto 15px auto;
+      border-radius: var(--radius-md);
+      border: 2px solid rgba(0, 229, 255, 0.6);
+      box-shadow:
+        0 0 20px rgba(0, 229, 255, 0.9),
+        0 0 40px rgba(247, 37, 133, 0.7),
+        0 0 60px rgba(0, 0, 0, 0.9);
+      opacity: 0;
+      animation: bannerFadeIn 0.9s ease-out forwards;
+    }
+
+    @media (max-width: 480px) {
+      .pin-card .hero-banner {
+        max-width: 260px;
+      }
+    }
+
+    @keyframes bannerFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
     /* Modal - Dark Mode */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.8); /* Darker backdrop */
+      background: rgba(0, 0, 0, 0.8);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -415,8 +436,8 @@
     }
     
     .vibe-btn:hover {
-        border-color: var(--primary);
-        box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
+      border-color: var(--primary);
+      box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
     }
 
     .vibe-emoji {
@@ -439,7 +460,7 @@
     .home-tile {
       border-radius: 14px;
       padding: 12px 6px;
-      background: #2C2C2C; /* Dark Tile */
+      background: #2C2C2C;
       border: 1px solid var(--border);
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
       display: flex;
@@ -453,7 +474,7 @@
     }
     
     .home-tile:active {
-        transform: scale(0.98);
+      transform: scale(0.98);
     }
 
     .home-tile-emoji {
@@ -468,46 +489,46 @@
   </style>
 </head>
 <body>
+  <!-- PIN SCREEN -->
   <div id="pin-screen">
-  <div class="pin-card">
+    <div class="pin-card">
 
-    <img 
-      src="IMG_8378.jpeg"
-      alt="Maher Family Chillout Room"
-      class="hero-banner"
-      style="margin-bottom: 15px;"
-    />
+      <img 
+        src="IMG_8378.jpeg"
+        alt="Maher Family Chillout Room"
+        class="hero-banner"
+      />
 
-    <h2 style="color: var(--primary); margin-bottom: 10px;">
-      Maher Family<br>Chillout Room
-    </h2>
+      <h2 style="margin-bottom: 10px;">
+        Maher Family<br>Chillout Room
+      </h2>
 
-    <div class="subtitle">Enter the secret family PIN to unlock.</div>
-    <div class="pin-input">
-      <input id="pin-input" type="password" inputmode="numeric"
-             maxlength="6"
-             style="text-align:center; letter-spacing: 4px; font-size: 1.2rem;" />
+      <div class="subtitle">Enter the secret family PIN to unlock.</div>
+      <div class="pin-input">
+        <input id="pin-input" type="password" inputmode="numeric"
+               maxlength="6"
+               style="text-align:center; letter-spacing: 4px; font-size: 1.2rem;" />
+      </div>
+      <button id="pin-submit" class="primary" style="width: 100%;">UNLOCK</button>
+      <div id="pin-error" class="error-text hidden">Incorrect PIN. Try again.</div>
     </div>
-    <button id="pin-submit" class="primary" style="width: 100%;">UNLOCK</button>
-    <div id="pin-error" class="error-text hidden">Incorrect PIN. Try again.</div>
   </div>
-</div>
 
+  <!-- MAIN APP -->
   <div id="app" class="app-shell hidden">
     <div class="card" style="position: relative; overflow: hidden;">
-        
-    <img src="update.jpeg"
-     alt="Maher Chillout Room"
-     class="hero-banner"
-     onerror="this.style.display='none'">
-        <h1 style="margin-bottom: 10px;">
-            <span style="color:var(--primary);">Chillout Room</span>
-            <span class="room-icon">🛋️</span>
-        </h1>
+      <img src="update.jpeg"
+           alt="Maher Chillout Room"
+           class="hero-banner"
+           onerror="this.style.display='none'">
+      <h1 style="margin-bottom: 10px;">
+        <span style="color:var(--primary);">Chillout Room</span>
+        <span class="room-icon">🛋️</span>
+      </h1>
 
       <div class="row-space">
         <div class="subtitle">
-           No double bookings • 30–60 min slots
+          No double bookings • 30–60 min slots
         </div>
         <span id="admin-badge" class="badge badge-admin hidden">ADMIN</span>
       </div>
@@ -547,7 +568,7 @@
           <div class="home-tile-emoji">📅</div>
           <div class="home-tile-label" style="color: var(--primary);">BOOKING</div>
         </div>
-         <div class="home-tile" id="home-credit">
+        <div class="home-tile" id="home-credit">
           <div class="home-tile-emoji">💰</div>
           <div class="home-tile-label">CREDITS</div>
         </div>
@@ -555,7 +576,6 @@
           <div class="home-tile-emoji">❌</div>
           <div class="home-tile-label">CANCEL</div>
         </div>
-        
         <div class="home-tile" id="home-about">
           <div class="home-tile-emoji">🧩</div>
           <div class="home-tile-label">About</div>
@@ -610,7 +630,7 @@
       </div>
       <div class="subtitle" style="margin-top: 6px;">
         <strong>Credits:</strong> 1 point = 1 minute.  
-        Tom &amp; Olivia spend points when they book. Sleepovers cost a big block of points and need parent approval.
+        Tom, Olivia, Dad and Mum spend points when they book. Sleepovers cost a big block of points and need parent approval.
       </div>
     </div>
 
@@ -634,11 +654,12 @@
         <button id="btn-close-admin" class="ghost small">Close</button>
       </div>
       <div class="subtitle">
-        Admin can delete any booking, clear all bookings for a day, and manage Tom &amp; Olivia's credit (points).
+        Admin can delete any booking, clear all bookings for a day, and manage credits for Tom, Olivia, Dad &amp; Mum.
       </div>
 
       <div style="height: 10px;"></div>
       <h3 style="font-size:0.95rem;margin-bottom:4px;">Account credits</h3>
+
       <div class="field">
         <label>Tom's credit (points / minutes)</label>
         <div class="row">
@@ -648,6 +669,7 @@
           <button class="small secondary" id="btn-add-tom-60">+60</button>
         </div>
       </div>
+
       <div class="field">
         <label>Olivia's credit (points / minutes)</label>
         <div class="row">
@@ -657,6 +679,27 @@
           <button class="small secondary" id="btn-add-olivia-60">+60</button>
         </div>
       </div>
+
+      <div class="field">
+        <label>Dad's credit (points / minutes)</label>
+        <div class="row">
+          <div id="admin-dad-balance" class="subtitle">0 min</div>
+          <button class="small secondary" id="btn-add-dad-10">+10</button>
+          <button class="small secondary" id="btn-add-dad-30">+30</button>
+          <button class="small secondary" id="btn-add-dad-60">+60</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Mum's credit (points / minutes)</label>
+        <div class="row">
+          <div id="admin-mum-balance" class="subtitle">0 min</div>
+          <button class="small secondary" id="btn-add-mum-10">+10</button>
+          <button class="small secondary" id="btn-add-mum-30">+30</button>
+          <button class="small secondary" id="btn-add-mum-60">+60</button>
+        </div>
+      </div>
+
       <div class="subtitle">
         60 points = 1 hour of bliss. Earn points by helping out or as a treat.
       </div>
@@ -670,6 +713,7 @@
     </div>
   </div>
 
+  <!-- BOOKING MODAL -->
   <div id="booking-modal-backdrop" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-header">
@@ -734,6 +778,7 @@
     </div>
   </div>
 
+  <!-- ADMIN PIN MODAL -->
   <div id="admin-pin-backdrop" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-header">
@@ -752,6 +797,7 @@
     </div>
   </div>
 
+  <!-- ABOUT MODAL -->
   <div id="about-backdrop" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-header">
@@ -777,6 +823,7 @@
     </div>
   </div>
 
+  <!-- INFO MODAL -->
   <div id="info-backdrop" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-header">
@@ -793,10 +840,10 @@
   <script>
     // ========= CONFIG =========
     const APP_PIN = "2468";      // General entry PIN for the family
-    const ADMIN_PIN = "8642";    // Admin PIN for Olivia / parents
+    const ADMIN_PIN = "8642";    // Admin PIN for parents
 
     const USERS = ["Tom", "Olivia", "Dad", "Mum", "Guest"];
-    const ACCOUNT_USERS = ["Tom", "Olivia"]; // credit accounts
+    const ACCOUNT_USERS = ["Tom", "Olivia", "Dad", "Mum"]; // credit accounts
 
     // Opening hours
     const OPEN_MINUTES = 9 * 60;   // 09:00
@@ -804,10 +851,12 @@
     const SLOT_STEP = 30;          // minutes
 
     // Credit logic: 1 point = 1 minute
-    const SLEEPOVER_COST_MINUTES = 480; // 8 hours/points for a sleepover
+    const SLEEPOVER_COST_MINUTES = 480; // 8 hours for a sleepover
 
     const STORAGE_KEY_BOOKINGS = "maher_chillout_bookings";
     const STORAGE_KEY_ACCOUNTS = "maher_chillout_accounts";
+    const STORAGE_KEY_ACCOUNTS_VERSION = "maher_chillout_accounts_version";
+    const ACCOUNTS_VERSION = "2";  // bump if you ever change starting balances again
 
     // ========= STATE =========
     let bookingsByDate = {};
@@ -874,6 +923,17 @@
     }
 
     // ========= ACCOUNT / CREDIT HELPERS =========
+    function resetAccountsToDefaults() {
+      accounts = {
+        Tom:    { minutes: 500 },
+        Olivia: { minutes: 5900 },
+        Dad:    { minutes: 50000 },
+        Mum:    { minutes: 6 }
+      };
+      localStorage.setItem(STORAGE_KEY_ACCOUNTS_VERSION, ACCOUNTS_VERSION);
+      saveAccounts();
+    }
+
     function loadAccounts() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY_ACCOUNTS);
@@ -881,9 +941,18 @@
       } catch {
         accounts = {};
       }
-      ACCOUNT_USERS.forEach(u => {
-        if (!accounts[u]) accounts[u] = { minutes: 0 };
-      });
+
+      const storedVersion = localStorage.getItem(STORAGE_KEY_ACCOUNTS_VERSION);
+      if (!storedVersion || storedVersion !== ACCOUNTS_VERSION) {
+        // First run of this version – set starting balances
+        resetAccountsToDefaults();
+      } else {
+        // Ensure all users exist
+        ACCOUNT_USERS.forEach(u => {
+          if (!accounts[u]) accounts[u] = { minutes: 0 };
+        });
+        saveAccounts();
+      }
     }
 
     function saveAccounts() {
@@ -910,7 +979,7 @@
       const user = document.getElementById("user-select").value;
       const el = document.getElementById("user-balance");
       if (!ACCOUNT_USERS.includes(user)) {
-        el.textContent = `${user} has no credit limit.`;
+        el.textContent = `${user} has no credit account.`;
         return;
       }
       const m = getAccountMinutes(user);
@@ -918,12 +987,14 @@
     }
 
     function updateAdminAccountUI() {
-      const tom = getAccountMinutes("Tom");
-      const olivia = getAccountMinutes("Olivia");
-      const tEl = document.getElementById("admin-tom-balance");
-      const oEl = document.getElementById("admin-olivia-balance");
-      if (tEl) tEl.textContent = `${tom} min`;
-      if (oEl) oEl.textContent = `${olivia} min`;
+      const t = document.getElementById("admin-tom-balance");
+      const o = document.getElementById("admin-olivia-balance");
+      const d = document.getElementById("admin-dad-balance");
+      const m = document.getElementById("admin-mum-balance");
+      if (t) t.textContent = `${getAccountMinutes("Tom")} min`;
+      if (o) o.textContent = `${getAccountMinutes("Olivia")} min`;
+      if (d) d.textContent = `${getAccountMinutes("Dad")} min`;
+      if (m) m.textContent = `${getAccountMinutes("Mum")} min`;
     }
 
     function cancelBooking(dateKey, bookingId, refundCredits) {
@@ -995,13 +1066,12 @@
         metaSpan.classList.add("slot-meta");
 
         if (bookingForSlot) {
-          row.classList.add("slot-booked");
           if (bookingForSlot.needsApproval && !bookingForSlot.approved) {
-            row.classList.remove("slot-booked");
             row.classList.add("slot-pending");
             metaSpan.textContent =
               `${bookingForSlot.user} • ${bookingForSlot.activity} • Pending parent approval`;
           } else {
+            row.classList.add("slot-booked");
             metaSpan.textContent =
               `${bookingForSlot.user} • ${bookingForSlot.activity}`;
           }
@@ -1463,6 +1533,38 @@
         updateAdminAccountUI();
       });
 
+      document.getElementById("btn-add-dad-10").addEventListener("click", () => {
+        adjustBalance("Dad", 10);
+        updateBalanceDisplay();
+        updateAdminAccountUI();
+      });
+      document.getElementById("btn-add-dad-30").addEventListener("click", () => {
+        adjustBalance("Dad", 30);
+        updateBalanceDisplay();
+        updateAdminAccountUI();
+      });
+      document.getElementById("btn-add-dad-60").addEventListener("click", () => {
+        adjustBalance("Dad", 60);
+        updateBalanceDisplay();
+        updateAdminAccountUI();
+      });
+
+      document.getElementById("btn-add-mum-10").addEventListener("click", () => {
+        adjustBalance("Mum", 10);
+        updateBalanceDisplay();
+        updateAdminAccountUI();
+      });
+      document.getElementById("btn-add-mum-30").addEventListener("click", () => {
+        adjustBalance("Mum", 30);
+        updateBalanceDisplay();
+        updateAdminAccountUI();
+      });
+      document.getElementById("btn-add-mum-60").addEventListener("click", () => {
+        adjustBalance("Mum", 60);
+        updateBalanceDisplay();
+        updateAdminAccountUI();
+      });
+
       // Length pills
       document.querySelectorAll("#length-pills .pill-select").forEach(pill => {
         pill.addEventListener("click", () => {
@@ -1645,7 +1747,7 @@
       document.getElementById("home-credit").addEventListener("click", () => {
         const user = document.getElementById("user-select").value;
         if (!ACCOUNT_USERS.includes(user)) {
-          alert(`${user} has no credit limit. Only Tom and Olivia use points.`);
+          alert(`${user} has no credit account. Only Tom, Olivia, Dad and Mum use points.`);
           return;
         }
         const m = getAccountMinutes(user);
