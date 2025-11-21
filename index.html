@@ -489,11 +489,10 @@
   </style>
 </head>
 <body>
-  <!-- PIN SCREEN -->
   <div id="pin-screen">
     <div class="pin-card">
       <img 
-        src="IMG_8378.jpeg"
+        src="banner.png"
         alt="Maher Family Chillout Room"
         class="hero-banner"
       />
@@ -513,10 +512,9 @@
     </div>
   </div>
 
-  <!-- MAIN APP -->
   <div id="app" class="app-shell hidden">
     <div class="card" style="position: relative; overflow: hidden;">
-      <img src="update.jpeg"
+      <img src="banner.png"
            alt="Maher Chillout Room"
            class="hero-banner"
            onerror="this.style.display='none'">
@@ -712,7 +710,6 @@
     </div>
   </div>
 
-  <!-- BOOKING MODAL -->
   <div id="booking-modal-backdrop" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-header">
@@ -777,7 +774,6 @@
     </div>
   </div>
 
-  <!-- ADMIN PIN MODAL -->
   <div id="admin-pin-backdrop" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-header">
@@ -796,7 +792,6 @@
     </div>
   </div>
 
-  <!-- ABOUT MODAL -->
   <div id="about-backdrop" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-header">
@@ -822,7 +817,6 @@
     </div>
   </div>
 
-  <!-- INFO MODAL -->
   <div id="info-backdrop" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-header">
@@ -840,6 +834,14 @@
     // ========= CONFIG =========
     const APP_PIN = "2468";      // General entry PIN for the family
     const ADMIN_PIN = "8642";    // Admin PIN for parents
+
+    // NEW: individual user PINs
+    const USER_PINS = {
+      Tom:    "1111",
+      Olivia: "2222",
+      Dad:    "3333",
+      Mum:    "4444"
+    };
 
     const USERS = ["Tom", "Olivia", "Dad", "Mum", "Guest"];
     const ACCOUNT_USERS = ["Tom", "Olivia", "Dad", "Mum"]; // credit accounts
@@ -863,6 +865,9 @@
     let currentDate = new Date();
     let isAdmin = false;
     let bookingLengthMinutes = 30;
+    
+    // NEW: track currently verified user selection
+    let currentUserSelection = "Tom"; 
 
     // ========= HELPERS =========
     function formatDateKey(date) {
@@ -1394,6 +1399,10 @@
 
       renderSlots();
       updateBalanceDisplay();
+      
+      // Initialize current user selection variable
+      const userSelectEl = document.getElementById("user-select");
+      currentUserSelection = userSelectEl.value;
 
       // Date navigation
       document.getElementById("btn-prev-day").addEventListener("click", () => {
@@ -1450,8 +1459,33 @@
         }
       });
 
-      // User select
-      document.getElementById("user-select").addEventListener("change", updateBalanceDisplay);
+      // ============ USER SELECT WITH PIN CHECK ============
+      userSelectEl.addEventListener("change", () => {
+        const requested = userSelectEl.value;
+
+        // Guest or anyone without a configured PIN: no challenge
+        if (!USER_PINS[requested]) {
+          currentUserSelection = requested;
+          updateBalanceDisplay();
+          return;
+        }
+
+        const entered = prompt(`Enter PIN for ${requested}:`);
+        if (entered === null) {
+          // Cancelled – revert to previous user
+          userSelectEl.value = currentUserSelection;
+          return;
+        }
+
+        if (entered === USER_PINS[requested]) {
+          currentUserSelection = requested;
+          updateBalanceDisplay();
+        } else {
+          alert("Incorrect PIN for " + requested);
+          userSelectEl.value = currentUserSelection;
+        }
+      });
+      // ====================================================
 
       // Vibe buttons
       document.querySelectorAll(".vibe-btn").forEach(btn => {
