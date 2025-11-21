@@ -469,17 +469,29 @@
 </head>
 <body>
   <div id="pin-screen">
-    <div class="pin-card">
-      <h2 style="color: var(--primary); margin-bottom: 10px;">Maher Family<br>Chillout Room</h2>
-      <div class="subtitle">Enter the secret family PIN to unlock.</div>
-      <div class="pin-input">
-        <input id="pin-input" type="password" inputmode="numeric" placeholder="Enter PIN"
-               maxlength="6" style="text-align:center; letter-spacing: 4px; font-size: 1.2rem;" />
-      </div>
-      <button id="pin-submit" class="primary" style="width: 100%;">UNLOCK</button>
-      <div id="pin-error" class="error-text hidden">Incorrect PIN. Try again.</div>
+  <div class="pin-card">
+
+    <img 
+      src="IMG_8378.jpeg"
+      alt="Maher Family Chillout Room"
+      class="hero-banner"
+      style="margin-bottom: 15px;"
+    />
+
+    <h2 style="color: var(--primary); margin-bottom: 10px;">
+      Maher Family<br>Chillout Room
+    </h2>
+
+    <div class="subtitle">Enter the secret family PIN to unlock.</div>
+    <div class="pin-input">
+      <input id="pin-input" type="password" inputmode="numeric"
+             maxlength="6"
+             style="text-align:center; letter-spacing: 4px; font-size: 1.2rem;" />
     </div>
+    <button id="pin-submit" class="primary" style="width: 100%;">UNLOCK</button>
+    <div id="pin-error" class="error-text hidden">Incorrect PIN. Try again.</div>
   </div>
+</div>
 
   <div id="app" class="app-shell hidden">
     <div class="card" style="position: relative; overflow: hidden;">
